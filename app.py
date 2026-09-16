@@ -1454,7 +1454,7 @@ def init_database():
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""",
         ]
             for i, sql in enumerate(schema):
-    cur.execute(sql)
+                cur.execute(sql)
 
     # Commit every 10 statements
     if i % 10 == 9:

@@ -1453,8 +1453,20 @@ def init_database():
                 FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""",
         ]
-            for sql in schema:
-                cur.execute(sql)
+            for i, sql in enumerate(schema):
+    cur.execute(sql)
+
+    # Commit every 10 statements
+    if i % 10 == 9:
+        if not conn.is_connected():
+            conn.reconnect(attempts=3, delay=2)
+        conn.commit()
+
+# Final commit
+if not conn.is_connected():
+    conn.reconnect(attempts=3, delay=2)
+
+conn.commit()
 
             if os.environ.get("READWISE_SCHEMA_ONLY") == "1":
                 conn.commit()

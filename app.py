@@ -1238,14 +1238,25 @@ def fetch_pending_short_answers(cur, student_id):
             }
         )
     return items
-
 def init_database():
     global DB_READY
-    try:
-        conn = mysql.connector.connect(**mysql_config(False))
-    except Exception as exc:
-        print(f"Database unavailable during startup: {exc}")
-        DB_READY = False
+
+    conn = None
+
+    # Wait for Railway MySQL to become available
+    for attempt in range(10):
+        try:
+            conn = mysql.connector.connect(
+                **mysql_config(False),
+                connection_timeout=30,
+                autocommit=False
+            )
+            break
+        except Exception as exc:
+            print(f"Database unavailable (attempt {attempt+1}/10): {exc}")
+            time.sleep(3)
+
+    if conn is None:
         return False
 
     try:
